@@ -11,7 +11,9 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import com.learning.springboot.data.query.entity.Employee;
+import com.learning.springboot.data.query.entity.Student;
 import com.learning.springboot.data.query.service.EmployeeService;
+import com.learning.springboot.data.query.service.StudentService;
 
 @SpringBootApplication(scanBasePackages = "com.learning.springboot.data.query")
 @EnableJpaRepositories(basePackages = "com.learning.springboot.data.query.dao")
@@ -21,6 +23,9 @@ public class SpringDataQueryMethodExampleApplication implements CommandLineRunne
 	@Autowired
 	private EmployeeService employeeService;
 
+	@Autowired
+	private StudentService studentService;
+
 	public static void main(String[] args) {
 		SpringApplication.run(SpringDataQueryMethodExampleApplication.class, args);
 	}
@@ -28,6 +33,13 @@ public class SpringDataQueryMethodExampleApplication implements CommandLineRunne
 	@Override
 	public void run(String... args) throws Exception {
 		createEmployee();
+		createStudent();
+	}
+
+	private void createStudent() {
+		Student stud = new Student("Pritesh", "Gavali", "Pune", "10");
+		studentService.save(stud);
+		System.out.println(stud.toString());
 	}
 
 	private void createEmployee() {
@@ -38,7 +50,7 @@ public class SpringDataQueryMethodExampleApplication implements CommandLineRunne
 		empList.add(new Employee("Varsha ", "Senior Software Engineer", 1200000d));
 		Iterable<Employee> employeeObj = employeeService.saveAll(empList);
 		for (Employee emp : employeeObj) {
-			System.out.println(emp.toString());			
+			System.out.println(emp.toString());
 		}
 	}
 
