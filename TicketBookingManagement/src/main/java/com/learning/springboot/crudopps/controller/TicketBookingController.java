@@ -1,6 +1,9 @@
 package com.learning.springboot.crudopps.controller;
 
+import java.net.URI;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,29 +24,33 @@ public class TicketBookingController {
 	private TicketBookingService ticketBookingService;
 
 	@PostMapping(value = "/create")
-	public Ticket create(@RequestBody Ticket ticket) {
-		return ticketBookingService.create(ticket);
+	public ResponseEntity<Ticket> create(@RequestBody Ticket ticket) {
+		Ticket created = ticketBookingService.create(ticket);
+		URI location = URI.create("/ticket/getTicket/" + created.getTicketId());
+		return ResponseEntity.created(location).body(created);
 	}
 
 	@GetMapping(value = "/getTicket/{ticketId}", produces = "application/json")
-	public Ticket getTicket(@PathVariable("ticketId") Integer ticketId) {
-		return ticketBookingService.getTicketById(ticketId);
+	public ResponseEntity<Ticket> getTicket(@PathVariable("ticketId") Integer ticketId) {
+		Ticket ticket = ticketBookingService.getTicketById(ticketId);
+		return ResponseEntity.ok(ticket);
 	}
 
 	@GetMapping(value = "/all", produces = "application/json")
-	public Iterable<Ticket> getAllTickets() {
-		return ticketBookingService.getAllTickets();
+	public ResponseEntity<Iterable<Ticket>> getAllTickets() {
+		return ResponseEntity.ok(ticketBookingService.getAllTickets());
 	}
-	
+
 	@PutMapping(value = "/update/{ticketId}")
-	public Ticket updateTicket(@RequestBody Ticket ticket, @PathVariable("ticketId") Integer ticketId) {
-		return ticketBookingService.updateTicket(ticket, ticketId);
+	public ResponseEntity<Ticket> updateTicket(@RequestBody Ticket ticket, @PathVariable("ticketId") Integer ticketId) {
+		Ticket updated = ticketBookingService.updateTicket(ticket, ticketId);
+		return ResponseEntity.ok(updated);
 	}
-	
+
 	@DeleteMapping(value = "/delete/{ticketId}")
-	public void deleteById(@PathVariable("ticketId") Integer ticketId) {
+	public ResponseEntity<Void> deleteById(@PathVariable("ticketId") Integer ticketId) {
 		ticketBookingService.deleteById(ticketId);
+		return ResponseEntity.noContent().build();
 	}
-	
 
 }

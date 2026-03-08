@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.learning.springboot.crudopps.dao.TicketBookingDao;
 import com.learning.springboot.crudopps.entity.Ticket;
+import com.learning.springboot.crudopps.exception.ResourceNotFoundException;
 
 @Service
 public class TicketBookingService {
@@ -17,7 +18,8 @@ public class TicketBookingService {
 	}
 
 	public Ticket getTicketById(Integer ticketId) {
-		return ticketBookingDao.findById(ticketId).get();
+		return ticketBookingDao.findById(ticketId)
+				.orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id: " + ticketId));
 	}
 
 	public Iterable<Ticket> getAllTickets() {
@@ -25,20 +27,37 @@ public class TicketBookingService {
 	}
 
 	public void deleteById(Integer ticketId) {
+		if (!ticketBookingDao.existsById(ticketId)) {
+			throw new ResourceNotFoundException("Ticket not found with id: " + ticketId);
+		}
 		ticketBookingDao.deleteById(ticketId);
 	}
 
 	public Ticket updateTicket(Ticket ticket, Integer ticketId) {
-		Ticket dbTicket = ticketBookingDao.findById(ticketId).get();
-		updateTicket(ticket, dbTicket);
+		if (ticket == null) {
+			throw new IllegalArgumentException("Request body must not be null");
+		}
+		Ticket dbTicket = ticketBookingDao.findById(ticketId)
+				.orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id: " + ticketId));
+		mergeTicket(ticket, dbTicket);
 		return ticketBookingDao.save(dbTicket);
 	}
 
-	private void updateTicket(Ticket ticket, Ticket dbTicket) {
-		dbTicket.setBookingDate(ticket.getBookingDate());
-		dbTicket.setDestinationStation(ticket.getDestinationStation());
-		dbTicket.setEmail(ticket.getEmail());
-		dbTicket.setPassengerName(ticket.getPassengerName());
-		dbTicket.setSourceStation(ticket.getSourceStation());
+	private void mergeTicket(Ticket ticket, Ticket dbTicket) {
+		if (ticket.getBookingDate() != null) {
+			dbTicket.setBookingDate(ticket.getBookingDate());
+		}
+		if (ticket.getDestinationStation() != null) {
+			dbTicket.setDestinationStation(ticket.getDestinationStation());
+		}
+		if (ticket.getEmail() != null) {
+			dbTicket.setEmail(ticket.getEmail());
+		}
+		if (ticket.getPassengerName() != null) {
+			dbTicket.setPassengerName(ticket.getPassengerName());
+		}
+		if (ticket.getSourceStation() != null) {
+			dbTicket.setSourceStation(ticket.getSourceStation());
+		}
 	}
 }
